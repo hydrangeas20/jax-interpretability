@@ -101,15 +101,15 @@ The model trained stably over 2,000 steps. Training and validation loss decrease
 
 ## Logit Lens
 
-The Logit Lens analysis showed that the embedding layer alone carried limited token-prediction information, while prediction confidence changed sharply after the first transformer block.
+The Logit Lens analysis showed that prediction entropy jumps sharply immediately after the embedding layer, rather than decreasing gradually across all layers. The embedding layer alone carried very little token-prediction information almost all of the decision relevant transformation happened in the first transformer block, which converted raw token embeddings into a much more prediction relevant representation.
 
-This suggests that early transformer computation plays a major role in converting raw token embeddings into prediction-relevant representations.
+This is a more interesting result than a smooth, gradual collapse would have been, and it points to a concrete mechanistic question for future work: what computation in the first transformer block causes the largest change in prediction confidence?
 
 ## Activation Patching
 
-Activation patching showed larger causal effects in later layers, with the strongest patch effect observed in the final transformer layer.
+Activation patching showed that causal effect on the target token prediction grows monotonically with depth, with the largest effect at the final transformer layer.
 
-This suggests that later residual stream activations contributed more strongly to recovering the target-token prediction after corruption.
+With only 4 layers, this result should be read as a coarse 5-point scale rather than a fine grained progression — there's no real "middle" to separate from "early" or "late" when every layer is adjacent to every other one. The monotonic increase is consistent with depth mattering at all, but a model this shallow can't distinguish "deeper layers matter more" from the more specific and more commonly reported finding in larger models: that causal effect is often concentrated in a narrow band of layers rather than increasing smoothly throughout. Testing that distinction directly is the natural next step — training a deeper model (8–16 layers) and checking whether the patch-effect curve stays monotonic or peaks and plateaus partway through.
 
 ## Sparse Autoencoder
 
@@ -212,7 +212,7 @@ jax-interpretability/
 │
 ├── results/
 │   ├── report.md
-│   └── summary.json
+│   └── results.json
 │
 ├── requirements.txt
 ├── LICENSE
